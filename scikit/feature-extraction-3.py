@@ -1,3 +1,7 @@
+#Converts tweets.csv to a matrix where
+#each unique word is a new column in the matrix
+#and the values are the counts of how many times
+#that word appears in the tweet.
 import pandas as pd
 import numpy as np
 
