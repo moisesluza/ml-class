@@ -13,6 +13,13 @@ from scipy.signal import convolve2d
 
 image = io.imread('dog.jpg', as_grey=True)
 
+#change the kernel matrix and see what happens with the output image.
+#kernel = [[0.0, 0.0, 0.0],
+#          [0.0, 5.0, 0.0],
+#          [0.0, 0.0, 0.0]]
+#kernel = [[0.0, 0.25, 0.0],
+#          [0.25, 0.0, 0.25],
+#          [0.0, 0.25, 0.0]]
 kernel = [[0.0, 0.0, 0.0],
           [0.0, 1.0, 0.0],
           [0.0, 0.0, 0.0]]
