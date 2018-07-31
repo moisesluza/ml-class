@@ -1,9 +1,7 @@
-# from https://github.com/DeepLearningSandbox/DeepLearningSandbox/blob/master/transfer_learning/fine-tune.py
 import os
 import sys
 import glob
 import argparse
-import matplotlib.pyplot as plt
 
 from keras import __version__
 from keras.applications.inception_v3 import InceptionV3, preprocess_input
@@ -13,14 +11,12 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 
 import wandb
-from wandb.wandb_keras import WandbKerasCallback
+from wandb.keras import WandbCallback
 
 run = wandb.init()
 config = run.config
 
 IM_WIDTH, IM_HEIGHT = 299, 299 #fixed size for InceptionV3
-NB_EPOCHS = 3
-BAT_SIZE = 32
 FC_SIZE = 1024
 NB_IV3_LAYERS_TO_FREEZE = 172
 
@@ -93,13 +89,7 @@ train_datagen =  ImageDataGenerator(
 )
 
 test_datagen = ImageDataGenerator(
-      preprocessing_function=preprocess_input,
-      rotation_range=30,
-      width_shift_range=0.2,
-      height_shift_range=0.2,
-      shear_range=0.2,
-      zoom_range=0.2,
-      horizontal_flip=True
+      preprocessing_function=preprocess_input
 )
 
 train_generator = train_datagen.flow_from_directory(
@@ -111,26 +101,24 @@ train_generator = train_datagen.flow_from_directory(
 validation_generator = test_datagen.flow_from_directory(
     val_dir,
     target_size=(IM_WIDTH, IM_HEIGHT),
-    batch_size=batch_size,
+    batch_size=250,
 )
 
 # setup model
-base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-base_model.summary()
-exit()
-
+base_model = InceptionV3(weights='imagenet', include_top=False) 
 model = add_new_last_layer(base_model, nb_classes)
+model._is_graph_network = False
 
 # fine-tuning
 setup_to_finetune(model)
+val_data = validation_generator.next()
 
 history_ft = model.fit_generator(
     train_generator,
-    samples_per_epoch=nb_train_samples,
-    nb_epoch=nb_epoch,
-    validation_data=validation_generator,
-    callbacks=[WandbKerasCallback()],
-    nb_val_samples=nb_val_samples,
-    class_weight='auto')
+    steps_per_epoch=2,
+    epochs=20,
+    validation_data = val_data,
+    callbacks=[WandbCallback(save_model=False, data_type="image", labels=["cat", "dog"])],
+    )
 
 model.save(args.output_model_file)
