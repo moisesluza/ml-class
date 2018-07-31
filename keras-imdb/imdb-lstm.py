@@ -17,8 +17,8 @@ config = wandb.config
 config.vocab_size = 1000
 config.maxlen = 300
 config.batch_size = 32
-config.embedding_dims = 50
-config.filters = 250
+config.embedding_dims = 16
+config.filters = 16
 config.kernel_size = 3
 config.hidden_dims = 100
 config.epochs = 10
@@ -33,10 +33,19 @@ X_test = tokenizer.texts_to_matrix(X_test)
 X_train = sequence.pad_sequences(X_train, maxlen=config.maxlen)
 X_test = sequence.pad_sequences(X_test, maxlen=config.maxlen)
 
+#state of the art text processing arch
 model = Sequential()
 model.add(Embedding(config.vocab_size,
                     config.embedding_dims,
                     input_length=config.maxlen))
+#This converts the lstm into lstm-cnn hybrid.
+#Still under research. 
+#Intuition: cnn can take care of the local patterns while
+#lstm can analyze the the long term patterns
+model.add(Conv1D(config.filters,
+                 config.kernel_size,
+                 padding='valid',
+                 activation='relu'))
 model.add(LSTM(config.hidden_dims, activation="sigmoid"))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy',
