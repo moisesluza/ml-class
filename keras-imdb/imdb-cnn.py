@@ -34,6 +34,8 @@ X_train = sequence.pad_sequences(X_train, maxlen=config.maxlen)
 X_test = sequence.pad_sequences(X_test, maxlen=config.maxlen)
 
 model = Sequential()
+
+#learns a mapping from words to vectors.
 model.add(Embedding(config.vocab_size,
                     config.embedding_dims,
                     input_length=config.maxlen))
