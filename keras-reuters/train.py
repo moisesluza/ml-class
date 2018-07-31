@@ -1,18 +1,22 @@
+#excercise
 import numpy as np
 import keras
 from keras.datasets import reuters
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
+from keras.layers import Dense, Dropout, Activation, Embedding, Conv1D, Reshape
 from keras.preprocessing.text import Tokenizer
+from keras.preprocessing import sequence
 import wandb
 from wandb.keras import WandbCallback
 
 wandb.init()
 config = wandb.config
 
-config.max_words = 1000
+config.max_words = 5000
 config.batch_size = 32
-config.epochs = 5
+config.epochs = 10
+config.maxlen = 100
+
 
 print('Loading data...')
 (x_train, y_train), (x_test, y_test) = reuters.load_data(num_words=config.max_words,
@@ -31,14 +35,19 @@ x_test = tokenizer.sequences_to_matrix(x_test, mode='binary')
 # One hot encoding
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
+
 print('y_train shape:', y_train.shape)
 print('y_test shape:', y_test.shape)
 
 model = Sequential()
+model.add(Dropout(0.5))
+model.add(Dense(num_classes, input_shape=(config.max_words,), activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(num_classes, input_shape=(config.max_words,), activation='softmax'))
 
+
 model.compile(loss='categorical_crossentropy',
-              optimizer='adam',
+              optimizer='nadam',
               metrics=['accuracy'])
 
 history = model.fit(x_train, y_train,
