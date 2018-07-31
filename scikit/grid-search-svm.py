@@ -1,3 +1,4 @@
+#Executes many configurations and runs them all in parallel.
 import pandas as pd
 import numpy as np
 import wandb
