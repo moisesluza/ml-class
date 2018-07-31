@@ -1,4 +1,3 @@
-
 from keras.models import Sequential
 from keras.layers import LSTM, TimeDistributed, RepeatVector, Dense
 import numpy as np
@@ -51,7 +50,7 @@ config.batch_size = 128
 maxlen = config.digits + 1 + config.digits
 
 # All the numbers, plus sign and space for padding.
-chars = '0123456789+ '
+chars = '0123456789- '
 ctable = CharacterTable(chars)
 
 questions = []
@@ -69,9 +68,9 @@ while len(questions) < config.training_size:
         continue
     seen.add(key)
     # Pad the data with spaces such that it is always MAXLEN.
-    q = '{}+{}'.format(a, b)
+    q = '{}-{}'.format(a, b)
     query = q + ' ' * (maxlen - len(q))
-    ans = str(a + b)
+    ans = str(a - b)
     # Answers can be of maximum size DIGITS + 1.
     ans += ' ' * (config.digits + 1 - len(ans))
     if config.reverse:
@@ -112,7 +111,7 @@ print(x_val.shape)
 print(y_val.shape)
 
 
-
+#this is the same arquitechture google translate uses.
 model = Sequential()
 # "Encode" the input sequence using an RNN, producing an output of HIDDEN_SIZE.
 # Note: In a situation where your input sequences have a variable length,
